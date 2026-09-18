@@ -24,7 +24,7 @@ GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 # - supports images (vision): "meta-llama/llama-4-scout-17b-16e-instruct"
 # We auto-pick the vision model only when a message actually contains an image,
 # since vision models are a bit slower than pure text models.
-TEXT_MODEL = "llama-3.3-70b-versatile"
+TEXT_MODEL = "llama-3.1-8b-instant"
 VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 SYSTEM_PROMPT = """You are Code Master AI — a friendly, supportive coding buddy inside the "CodeMaster" web development learning platform (a Hindi/Hinglish coding tutorial site).
