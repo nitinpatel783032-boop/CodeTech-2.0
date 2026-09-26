@@ -151,6 +151,50 @@ def chat():
         return jsonify({"error": "Server mein kuch gadbad ho gayi."}), 500
 
 
+ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
+# 👉 "Rachel" jaisi natural default voice. Chahe to ElevenLabs website se
+# koi aur voice ID le sakte ho (Voice Library mein).
+ELEVENLABS_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
+ELEVENLABS_TTS_URL = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}"
+
+
+@app.route("/api/tts", methods=["POST"])
+def text_to_speech():
+    data = request.get_json(silent=True) or {}
+    text = data.get("text", "").strip()
+
+    if not text:
+        return jsonify({"error": "text is required"}), 400
+
+    # ElevenLabs has a length limit per request — trim very long replies
+    text = text[:2000]
+
+    try:
+        response = requests.post(
+            ELEVENLABS_TTS_URL,
+            headers={
+                "xi-api-key": ELEVENLABS_API_KEY,
+                "Content-Type": "application/json",
+                "Accept": "audio/mpeg",
+            },
+            json={
+                "text": text,
+                "model_id": "eleven_multilingual_v2",  # Hindi/Hinglish support ke liye
+                "voice_settings": {"stability": 0.5, "similarity_boost": 0.75},
+            },
+            timeout=30,
+        )
+
+        if response.status_code != 200:
+            print(f"ELEVENLABS ERROR: {response.status_code} - {response.text}")
+            return jsonify({"error": "Voice generate nahi ho payi"}), 500
+
+        # Return the raw audio bytes back to the browser
+        return response.content, 200, {"Content-Type": "audio/mpeg"}
+
+    except requests.exceptions.RequestException as e:
+        print(f"TTS REQUEST ERROR: {e}")
+        return jsonify({"error": "Voice service tak nahi pahunch paya"}), 500
 @app.route("/", methods=["GET"])
 def health_check():
     return jsonify({"status": "Code Master AI backend is running (Groq)"}), 200
