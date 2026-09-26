@@ -154,7 +154,7 @@ def chat():
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
 # 👉 "Rachel" jaisi natural default voice. Chahe to ElevenLabs website se
 # koi aur voice ID le sakte ho (Voice Library mein).
-ELEVENLABS_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
+ELEVENLABS_VOICE_ID = "cjVigY5qzO86Huf0OWal"
 ELEVENLABS_TTS_URL = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}"
 
 
