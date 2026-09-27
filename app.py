@@ -126,7 +126,7 @@ def chat():
             json={
                 "model": model,
                 "messages": full_messages,
-                "max_tokens": 600,
+                "max_tokens": 4096,
             },
             timeout=60,
         )
