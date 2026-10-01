@@ -120,7 +120,7 @@ def chat():
         response = requests.post(
             GROQ_URL,
             headers={
-                "Content-Type": "application/json",F
+                "Content-Type": "application/json",
                 "Authorization": f"Bearer {GROQ_API_KEY}",
             },
             json={
