@@ -211,4 +211,4 @@ def health_check():
 
 if __name__ == "__main__":
     # For local testing only. In production, gunicorn runs this (see Procfile).
-    app.run(debug=True, port=500
+    app.run(debug=True, port=5000)
