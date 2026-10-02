@@ -152,13 +152,14 @@ def chat():
 
 
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
-# 👉 "Rachel" jaisi natural default voice. Chahe to ElevenLabs website se
-# koi aur voice ID le sakte ho (Voice Library mein).
+# 👉 Male aur Female dono ke liye alag voice ID.
+# Chahe to ElevenLabs website se koi aur voice ID le sakte ho.
 ELEVENLABS_VOICES = {
     "male": "cjVigY5qzO86Huf0OWal",    # tera current voice ID
     "female": "21m00Tcm4TlvDq8ikWAM",  # Rachel (default female voice)
 }
 ELEVENLABS_TTS_BASE = "https://api.elevenlabs.io/v1/text-to-speech"
+
 
 @app.route("/api/tts", methods=["POST"])
 def text_to_speech():
@@ -170,12 +171,14 @@ def text_to_speech():
 
     # ElevenLabs has a length limit per request — trim very long replies
     text = text[:2000]
-        voice = data.get("voice", "male")
+
+    # Frontend se "male" ya "female" aata hai, uske hisaab se voice ID choose hoti hai
+    voice = data.get("voice", "male")
     voice_id = ELEVENLABS_VOICES.get(voice, ELEVENLABS_VOICES["male"])
 
     try:
         response = requests.post(
-                       f"{ELEVENLABS_TTS_BASE}/{voice_id}",
+            f"{ELEVENLABS_TTS_BASE}/{voice_id}",
             headers={
                 "xi-api-key": ELEVENLABS_API_KEY,
                 "Content-Type": "application/json",
@@ -199,6 +202,8 @@ def text_to_speech():
     except requests.exceptions.RequestException as e:
         print(f"TTS REQUEST ERROR: {e}")
         return jsonify({"error": "Voice service tak nahi pahunch paya"}), 500
+
+
 @app.route("/", methods=["GET"])
 def health_check():
     return jsonify({"status": "Code Master AI backend is running (Groq)"}), 200
@@ -206,4 +211,4 @@ def health_check():
 
 if __name__ == "__main__":
     # For local testing only. In production, gunicorn runs this (see Procfile).
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=500
