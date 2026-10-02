@@ -128,7 +128,7 @@ def chat():
                 "messages": full_messages,
                 "max_tokens": 4096,
             },
-            tiFeout=60,
+            timeout=60,
         )
         resp_json = response.json()
 
@@ -154,9 +154,11 @@ def chat():
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
 # 👉 "Rachel" jaisi natural default voice. Chahe to ElevenLabs website se
 # koi aur voice ID le sakte ho (Voice Library mein).
-ELEVENLABS_VOICE_ID = "cjVigY5qzO86Huf0OWal"
-ELEVENLABS_TTS_URL = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}"
-
+ELEVENLABS_VOICES = {
+    "male": "cjVigY5qzO86Huf0OWal",    # tera current voice ID
+    "female": "21m00Tcm4TlvDq8ikWAM",  # Rachel (default female voice)
+}
+ELEVENLABS_TTS_BASE = "https://api.elevenlabs.io/v1/text-to-speech"
 
 @app.route("/api/tts", methods=["POST"])
 def text_to_speech():
@@ -168,10 +170,12 @@ def text_to_speech():
 
     # ElevenLabs has a length limit per request — trim very long replies
     text = text[:2000]
+        voice = data.get("voice", "male")
+    voice_id = ELEVENLABS_VOICES.get(voice, ELEVENLABS_VOICES["male"])
 
     try:
         response = requests.post(
-            ELEVENLABS_TTS_URL,
+                       f"{ELEVENLABS_TTS_BASE}/{voice_id}",
             headers={
                 "xi-api-key": ELEVENLABS_API_KEY,
                 "Content-Type": "application/json",
