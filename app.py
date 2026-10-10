@@ -155,8 +155,8 @@ ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
 # 👉 Male aur Female dono ke liye alag voice ID.
 # Chahe to ElevenLabs website se koi aur voice ID le sakte ho.
 ELEVENLABS_VOICES = {
-    "male": "cjVigY5qzO86Huf0OWal",    # tera current voice ID
-    "female": "21m00Tcm4TlvDq8ikWAM",  # Rachel (default female voice)
+    "male": "ynTHHllfDmGsZ3G8QJt9",    # tera current voice ID
+    "female": "OZ0L6eISlOejga3XjDFt",  # Rachel (default female voice)
 }
 ELEVENLABS_TTS_BASE = "https://api.elevenlabs.io/v1/text-to-speech"
 
