@@ -9,6 +9,8 @@
 # ============================================
 
 import os
+import asyncio
+import edge_tts
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -151,14 +153,21 @@ def chat():
         return jsonify({"error": "Server mein kuch gadbad ho gayi."}), 500
 
 
-ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
-# 👉 Male aur Female dono ke liye alag voice ID.
-# Chahe to ElevenLabs website se koi aur voice ID le sakte ho.
-ELEVENLABS_VOICES = {
-    "male": "ynTHHllfDmGsZ3G8QJt9",    # tera current voice ID
-    "female": "OZ0L6eISlOejga3XjDFt",  # Rachel (default female voice)
+# 👉 Free voices (edge-tts): koi API key ya paisa nahi lagta, male + female dono milti hain.
+# en-IN (Indian English) voices Roman Hinglish ("main theek hoon") ko sabse natural padhti hain.
+TTS_VOICES = {
+    "male": "en-IN-PrabhatNeural",
+    "female": "en-IN-NeerjaNeural",
 }
-ELEVENLABS_TTS_BASE = "https://api.elevenlabs.io/v1/text-to-speech"
+
+
+async def synthesize_speech(text, voice_name):
+    communicate = edge_tts.Communicate(text, voice_name)
+    audio_chunks = []
+    async for chunk in communicate.stream():
+        if chunk["type"] == "audio":
+            audio_chunks.append(chunk["data"])
+    return b"".join(audio_chunks)
 
 
 @app.route("/api/tts", methods=["POST"])
@@ -169,39 +178,26 @@ def text_to_speech():
     if not text:
         return jsonify({"error": "text is required"}), 400
 
-    # ElevenLabs has a length limit per request — trim very long replies
+    # Very long replies ko trim kar do
     text = text[:2000]
 
-    # Frontend se "male" ya "female" aata hai, uske hisaab se voice ID choose hoti hai
+    # Frontend se "male" ya "female" aata hai, uske hisaab se voice choose hoti hai
     voice = data.get("voice", "male")
-    voice_id = ELEVENLABS_VOICES.get(voice, ELEVENLABS_VOICES["male"])
+    voice_name = TTS_VOICES.get(voice, TTS_VOICES["male"])
 
     try:
-        response = requests.post(
-            f"{ELEVENLABS_TTS_BASE}/{voice_id}",
-            headers={
-                "xi-api-key": ELEVENLABS_API_KEY,
-                "Content-Type": "application/json",
-                "Accept": "audio/mpeg",
-            },
-            json={
-                "text": text,
-                "model_id": "eleven_multilingual_v2",  # Hindi/Hinglish support ke liye
-                "voice_settings": {"stability": 0.5, "similarity_boost": 0.75},
-            },
-            timeout=30,
-        )
+        audio_bytes = asyncio.run(synthesize_speech(text, voice_name))
 
-        if response.status_code != 200:
-            print(f"ELEVENLABS ERROR: {response.status_code} - {response.text}")
+        if not audio_bytes:
+            print("TTS ERROR: empty audio received")
             return jsonify({"error": "Voice generate nahi ho payi"}), 500
 
         # Return the raw audio bytes back to the browser
-        return response.content, 200, {"Content-Type": "audio/mpeg"}
+        return audio_bytes, 200, {"Content-Type": "audio/mpeg"}
 
-    except requests.exceptions.RequestException as e:
-        print(f"TTS REQUEST ERROR: {e}")
-        return jsonify({"error": "Voice service tak nahi pahunch paya"}), 500
+    except Exception as e:
+        print(f"TTS ERROR: {e}")
+        return jsonify({"error": "Voice generate nahi ho payi"}), 500
 
 
 @app.route("/", methods=["GET"])
