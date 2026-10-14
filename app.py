@@ -126,13 +126,13 @@ def chat():
         # Vision model only when needed — text model is faster
         model = VISION_MODEL if has_image else TEXT_MODEL
 
-               language_rule = (
+        language_rule = (
             f"\n\nIMPORTANT: Reply in {lang} for the whole conversation (explanations, debugging, follow-ups), "
             "even if earlier messages were in another language. Never translate code, commands, file names, "
             "or programming keywords. If the user explicitly asks for another language in a message, "
             "use it for that message only."
         )
-                language_rule = (
+        language_rule = (
             f"\n\nIMPORTANT: Reply in {lang} for the whole conversation (explanations, debugging, follow-ups), "
             "even if earlier messages were in another language. Never translate code, commands, file names, "
             "or programming keywords. If the user explicitly asks for another language in a message, "
