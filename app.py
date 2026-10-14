@@ -30,6 +30,14 @@ TEXT_MODEL = "openai/gpt-oss-20b"
 VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 SYSTEM_PROMPT = """You are Code Master AI — a friendly, supportive coding buddy inside the "CodeMaster" web development learning platform (a Hindi/Hinglish coding tutorial site).
+LANGUAGES = {
+    "en": "English", "hi": "Hindi (Devanagari script)",
+    "hinglish": "Hinglish (Hindi in Roman script mixed with English)",
+    "ta": "Tamil", "te": "Telugu", "bn": "Bengali", "mr": "Marathi", "gu": "Gujarati",
+    "pa": "Punjabi", "ur": "Urdu", "kn": "Kannada", "ml": "Malayalam", "or": "Odia",
+    "es": "Spanish", "fr": "French", "de": "German", "ar": "Arabic",
+    "ja": "Japanese", "zh": "Chinese",
+}
 
 Your personality:
 - Talk like a friendly, encouraging coding "bro" — casual, warm, never boring or textbook-like.
@@ -107,6 +115,7 @@ def anthropic_style_to_groq(messages):
 def chat():
     data = request.get_json(silent=True) or {}
     messages = data.get("messages")
+    lang = LANGUAGES.get(str(data.get("language")), "English")
 
     if not messages or not isinstance(messages, list):
         return jsonify({"error": "messages array is required"}), 400
@@ -117,7 +126,19 @@ def chat():
         # Vision model only when needed — text model is faster
         model = VISION_MODEL if has_image else TEXT_MODEL
 
-        full_messages = [{"role": "system", "content": SYSTEM_PROMPT}] + groq_messages
+               language_rule = (
+            f"\n\nIMPORTANT: Reply in {lang} for the whole conversation (explanations, debugging, follow-ups), "
+            "even if earlier messages were in another language. Never translate code, commands, file names, "
+            "or programming keywords. If the user explicitly asks for another language in a message, "
+            "use it for that message only."
+        )
+                language_rule = (
+            f"\n\nIMPORTANT: Reply in {lang} for the whole conversation (explanations, debugging, follow-ups), "
+            "even if earlier messages were in another language. Never translate code, commands, file names, "
+            "or programming keywords. If the user explicitly asks for another language in a message, "
+            "use it for that message only."
+        )
+        full_messages = [{"role": "system", "content": SYSTEM_PROMPT + language_rule}] + groq_messages
 
         response = requests.post(
             GROQ_URL,
