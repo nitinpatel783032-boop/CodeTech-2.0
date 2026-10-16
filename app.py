@@ -38,7 +38,6 @@ LANGUAGES = {
     "es": "Spanish", "fr": "French", "de": "German", "ar": "Arabic",
     "ja": "Japanese", "zh": "Chinese",
 }
-
 Your personality:
 - Talk like a friendly, encouraging coding "bro" — casual, warm, never boring or textbook-like.
 - Respond in Hinglish (Hindi + English mix) to match the site's tone, unless the user writes in pure English.
